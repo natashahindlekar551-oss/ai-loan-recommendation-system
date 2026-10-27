@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}My Loan Dashboard - LoanAI{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-5 py-4">
+    <!-- Header banner -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold tracking-tight text-dark mb-1">Applicant Dashboard</h2>
+            <p class="text-secondary font-sm mb-0">Welcome, <strong>{{ current_user.name }}</strong>! Manage your loan evaluations, document submissions, and approval status.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('detect_loan') }}" class="btn btn-primary rounded-pill px-4 shadow-sm fw-semibold">
+                <i class="fa-solid fa-wand-magic-sparkles me-1"></i> New Loan Detection
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="app-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-secondary font-xs text-uppercase fw-bold">Total Applications</span>
+                    <div class="avatar-sm bg-primary-subtle text-primary"><i class="fa-solid fa-file-lines"></i></div>
+                </div>
+                <h3 class="fw-bold text-dark mb-0">{{ applications|length }}</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="app-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-secondary font-xs text-uppercase fw-bold">Eligible Matches</span>
+                    <div class="avatar-sm bg-success-subtle text-success"><i class="fa-solid fa-circle-check"></i></div>
+                </div>
+                <h3 class="fw-bold text-success mb-0">
+                    {{ applications|selectattr("eligibility_status", "equalto", "Likely Eligible")|list|length }}
+                </h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="app-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-secondary font-xs text-uppercase fw-bold">Active Submissions</span>
+                    <div class="avatar-sm bg-warning-subtle text-warning"><i class="fa-solid fa-clock"></i></div>
+                </div>
+                <h3 class="fw-bold text-warning mb-0">
+                    {{ applications|selectattr("status", "ne", "Approved")|list|length }}
+                </h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="app-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-secondary font-xs text-uppercase fw-bold">KYC &amp; Scans</span>
+                    <div class="avatar-sm bg-info-subtle text-info"><i class="fa-solid fa-camera"></i></div>
+                </div>
+                <h3 class="fw-bold text-info mb-0">Live Active</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Applications History Table -->
+    <div class="app-card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>My Loan Application History</h5>
+            <span class="badge bg-light text-dark border">{{ applications|length }} Recorded</span>
+        </div>
+
+        {% if applications %}
+        <div class="table-responsive">
+            <table class="table table-custom align-middle">
+                <thead>
+                    <tr>
+                        <th>App ID</th>
+                        <th>Recommended Category</th>
+                        <th>Match Score</th>
+                        <th>Requested Amount</th>
+                        <th>Eligibility Status</th>
+                        <th>Application Status</th>
+                        <th>Submitted On</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in applications %}
+                    <tr>
+                        <td class="fw-bold text-primary font-sm">#APP-{{ app.id }}</td>
+                        <td>
+                            <div class="fw-bold text-dark font-sm">{{ app.top_category }}</div>
+                            <small class="text-muted font-xxs">{{ app.loan_purpose }}</small>
+                        </td>
+                        <td>
+                            <span class="score-badge-pill {% if app.top_score >= 80 %}score-badge-high{% elif app.top_score >= 50 %}score-badge-med{% else %}score-badge-low{% endif %}">
+                                {{ app.top_score }}%
+                            </span>
+                        </td>
+                        <td class="fw-semibold font-sm">₹{{ "{:,}".format(app.loan_amount|int) }}</td>
+                        <td>
+                            <span class="badge bg-{{ app.get_eligibility_details().get('badge_class', 'primary') }} font-xs">
+                                {{ app.eligibility_status }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if app.status == 'Approved' %}
+                                <span class="badge bg-success font-xs"><i class="fa-solid fa-circle-check me-1"></i> Approved</span>
+                            {% elif app.status == 'Under Review' %}
+                                <span class="badge bg-warning text-dark font-xs"><i class="fa-solid fa-hourglass-half me-1"></i> Under Review</span>
+                            {% elif app.status == 'Rejected' %}
+                                <span class="badge bg-danger font-xs"><i class="fa-solid fa-circle-xmark me-1"></i> Rejected</span>
+                            {% else %}
+                                <span class="badge bg-primary font-xs"><i class="fa-solid fa-file-import me-1"></i> Submitted</span>
+                            {% endif %}
+                        </td>
+                        <td class="font-xs text-secondary">{{ app.created_at.strftime('%d %b %Y') }}</td>
+                        <td>
+                            <a href="{{ url_for('result', app_id=app.id) }}" class="btn btn-sm btn-primary rounded-pill px-3 font-xs">
+                                <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> View Result / Docs
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <div class="avatar-sm mx-auto mb-3" style="width: 60px; height: 60px; font-size: 1.6rem; background: #eff6ff; color: #2563eb;">
+                <i class="fa-solid fa-folder-open"></i>
+            </div>
+            <h5 class="fw-bold text-dark">No loan applications found</h5>
+            <p class="text-secondary font-sm mb-3">You haven't run any AI loan detections yet. Click below to begin!</p>
+            <a href="{{ url_for('detect_loan') }}" class="btn btn-primary rounded-pill px-4">
+                <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Start AI Loan Detection
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,372 @@
+{% extends "base.html" %}
+
+{% block title %}AI Loan Detection Form - LoanAI{% endblock %}
+
+{% block content %}
+<div class="container py-4 py-lg-5">
+    <!-- Header banner -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-10">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 p-4 rounded-4 bg-white border shadow-sm">
+                <div>
+                    <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-primary-subtle text-primary font-xs fw-bold mb-2">
+                        <i class="fa-solid fa-microchip"></i> Scikit-Learn Multiclass Classifier
+                    </div>
+                    <h2 class="fw-bold tracking-tight mb-1 text-dark">AI Loan Suitability &amp; Eligibility Evaluation</h2>
+                    <p class="text-secondary font-sm mb-0">Fill in your financial and personal details below for instant detection across 10 loan categories.</p>
+                </div>
+                <div class="text-md-end">
+                    <span class="badge bg-light text-dark border px-3 py-2 font-xs">
+                        <i class="fa-solid fa-lock text-success me-1"></i> 256-bit Encrypted &amp; Secure
+                    </span>
+                </div>
+            </div>
+
+            <!-- Quick Demo Prefill Chips -->
+            <div class="p-3 mt-3 rounded-4 bg-light border">
+                <div class="d-flex align-items-center gap-2 mb-2 font-xs fw-bold text-muted text-uppercase">
+                    <i class="fa-solid fa-bolt text-warning"></i> Quick Demo Autofill Presets (Test in 1-Click):
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="demo-chip" data-demo-profile="farmer">
+                        <span>🌾 Farmer (Crop Cultivation)</span>
+                    </button>
+                    <button type="button" class="demo-chip" data-demo-profile="student">
+                        <span>🎓 Student (Higher Education)</span>
+                    </button>
+                    <button type="button" class="demo-chip" data-demo-profile="salaried_home">
+                        <span>🏠 Salaried (Home Purchase)</span>
+                    </button>
+                    <button type="button" class="demo-chip" data-demo-profile="woman_entrepreneur">
+                        <span>👩‍💼 Woman Entrepreneur (Boutique)</span>
+                    </button>
+                    <button type="button" class="demo-chip" data-demo-profile="business_owner">
+                        <span>🏭 Business Owner (Machinery)</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Input Form -->
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <form method="POST" action="{{ url_for('detect_loan') }}" id="loanDetectionForm" class="app-card p-4 p-md-5">
+                
+                <!-- SECTION 1: Personal & Contact Information -->
+                <div class="form-section-title">
+                    <i class="fa-solid fa-id-card text-primary"></i> 1. Personal &amp; Contact Details
+                </div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label font-sm fw-semibold">Full Name *</label>
+                        <input type="text" name="full_name" id="full_name" class="form-control" value="{{ current_user.name }}" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label font-sm fw-semibold">Age *</label>
+                        <input type="number" name="age" id="age" class="form-control" min="18" max="75" value="32" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label font-sm fw-semibold">Gender *</label>
+                        <select name="gender" id="gender" class="form-select" required>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label font-sm fw-semibold">Mobile Number *</label>
+                        <input type="tel" name="mobile" id="mobile" class="form-control" value="{{ current_user.phone or '9820011223' }}" required>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: Location Information -->
+                <div class="form-section-title">
+                    <i class="fa-solid fa-location-dot text-primary"></i> 2. Location &amp; Residence
+                </div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label font-sm fw-semibold">State *</label>
+                        <input type="text" name="state" id="state" class="form-control" placeholder="e.g. Maharashtra, Karnataka" value="Maharashtra" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label font-sm fw-semibold">District *</label>
+                        <input type="text" name="district" id="district" class="form-control" placeholder="e.g. Pune, Nashik" value="Pune" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label font-sm fw-semibold">City / Village *</label>
+                        <input type="text" name="city_village" id="city_village" class="form-control" placeholder="e.g. Pune City / Village Name" value="Haveli" required>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: Employment & Income -->
+                <div class="form-section-title">
+                    <i class="fa-solid fa-briefcase text-primary"></i> 3. Employment &amp; Financial Information
+                </div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label font-sm fw-semibold">Occupation *</label>
+                        <select name="occupation" id="occupation" class="form-select" required>
+                            <option value="Salaried">Salaried (Corporate/Private)</option>
+                            <option value="Self-Employed Professional">Self-Employed Professional (Dr/CA/Lawyer)</option>
+                            <option value="Business Owner">Business Owner / Merchant</option>
+                            <option value="Farmer">Farmer / Agriculturist</option>
+                            <option value="Student">Student</option>
+                            <option value="Homemaker / Self-employed Woman">Homemaker / Self-employed Woman</option>
+                            <option value="Daily Wage Worker / Artisan">Daily Wage Worker / Artisan</option>
+                            <option value="Gig Worker / Driver">Gig Worker / Driver / Logistics</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label font-sm fw-semibold">Employment Type *</label>
+                        <select name="employment_type" id="employment_type" class="form-select" required>
+                            <option value="Full-Time Salaried">Full-Time Salaried</option>
+                            <option value="Government Service">Government Service</option>
+                            <option value="Contractual Salaried">Contractual Salaried</option>
+                            <option value="Self-Employed">Self-Employed</option>
+                            <option value="Business Enterprise">Business Enterprise</option>
+                            <option value="Agriculture / Farming">Agriculture / Farming</option>
+                            <option value="Student / Unemployed">Student / Unemployed</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label font-sm fw-semibold">Company / Business / Farm Name</label>
+                        <input type="text" name="company_name" id="company_name" class="form-control" placeholder="e.g. ABC Pvt Ltd / Self">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label font-sm fw-semibold">Monthly Net Income (₹) *</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" name="monthly_income" id="monthly_income" class="form-control" min="0" step="500" value="45000" required>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label font-sm fw-semibold">Annual Income (₹) *</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" name="annual_income" id="annual_income" class="form-control" min="0" step="1000" value="540000" required>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label font-sm fw-semibold">Credit Score (CIBIL / Experian) *</label>
+                        <input type="number" name="credit_score" id="credit_score" class="form-control" min="300" max="900" value="740" required>
+                        <small class="text-muted font-xxs">Score between 300 - 900</small>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label font-sm fw-semibold">Bank Account Status *</label>
+                        <select name="bank_account_status" id="bank_account_status" class="form-select" required>
+                            <option value="Salary Account">Salary Account</option>
+                            <option value="Active Savings Account">Active Savings Account</option>
+                            <option value="Current Account">Current Account (Business)</option>
+                            <option value="Jan Dhan Account">Jan Dhan Account</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label font-sm fw-semibold">Existing Active Loans Count *</label>
+                        <input type="number" name="existing_loans" id="existing_loans" class="form-control" min="0" max="10" value="0" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label font-sm fw-semibold">Total Existing Monthly EMI (₹) *</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" name="existing_emi" id="existing_emi" class="form-control" min="0" step="500" value="0" required>
+                        </div>
+                        <small class="text-muted font-xxs">Total ongoing EMI payments across all existing credit</small>
+                    </div>
+                </div>
+
+                <!-- SECTION 4: Loan Requirement Details -->
+                <div class="form-section-title">
+                    <i class="fa-solid fa-hand-holding-dollar text-primary"></i> 4. Loan Requirements
+                </div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label font-sm fw-semibold">Loan Amount Required (₹) *</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" name="loan_amount" id="loan_amount" class="form-control" min="10000" max="50000000" step="10000" value="500000" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label font-sm fw-semibold">Loan Tenure Required (Months) *</label>
+                        <select name="loan_tenure" id="loan_tenure" class="form-select" required>
+                            <option value="12">12 Months (1 Year)</option>
+                            <option value="24">24 Months (2 Years)</option>
+                            <option value="36" selected>36 Months (3 Years)</option>
+                            <option value="48">48 Months (4 Years)</option>
+                            <option value="60">60 Months (5 Years)</option>
+                            <option value="84">84 Months (7 Years)</option>
+                            <option value="120">120 Months (10 Years)</option>
+                            <option value="180">180 Months (15 Years)</option>
+                            <option value="240">240 Months (20 Years)</option>
+                            <option value="300">300 Months (25 Years)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label font-sm fw-semibold">Applicant Persona *</label>
+                        <select name="applicant_persona" id="applicant_persona" class="form-select" required>
+                            <option value="Working">Working / Salaried</option>
+                            <option value="Student">Student</option>
+                            <option value="Farmer">Farmer</option>
+                            <option value="Business">Business / Entrepreneur</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label font-sm fw-semibold">Primary Loan Purpose *</label>
+                        <input type="text" name="loan_purpose" id="loan_purpose" class="form-control" list="purposeOptions" placeholder="Type or select specific purpose (e.g. Buying a flat, Crop loan, College education, etc.)" value="Buying a flat / apartment" required>
+                        <datalist id="purposeOptions">
+                            <!-- Home -->
+                            <option value="Buying a new house">
+                            <option value="Constructing a house">
+                            <option value="Buying a flat / apartment">
+                            <option value="Home renovation / extension">
+                            <!-- Education -->
+                            <option value="College education fees">
+                            <option value="Higher studies / Master's degree">
+                            <option value="Professional courses (Medical/Engg/MBA)">
+                            <option value="Study abroad expenses">
+                            <!-- Agriculture -->
+                            <option value="Crop loan (Kharif/Rabi)">
+                            <option value="Farming equipment purchase">
+                            <option value="Tractor loan for farm">
+                            <option value="Irrigation / Borewell installation">
+                            <option value="Seeds, fertilizers & pesticides">
+                            <option value="Dairy farming setup">
+                            <option value="Poultry farming setup">
+                            <!-- Personal -->
+                            <option value="Medical emergency expenses">
+                            <option value="Marriage / Wedding expenses">
+                            <option value="Urgent family emergency">
+                            <option value="Travel / Vacation financing">
+                            <!-- Business -->
+                            <option value="Starting a new commercial business">
+                            <option value="Business expansion / New branch">
+                            <option value="Working capital for inventory">
+                            <option value="Commercial machinery purchase">
+                            <!-- Vehicle -->
+                            <option value="Two-wheeler / Motorcycle purchase">
+                            <option value="Personal Car (Hatchback/Sedan/SUV)">
+                            <option value="Commercial vehicle (Tempo/Truck/Taxi)">
+                            <!-- Gold -->
+                            <option value="Short-term emergency cash against gold">
+                            <option value="Instant agricultural/medical emergency against gold ornaments">
+                            <!-- MSME -->
+                            <option value="Tech / Innovation Startup launch">
+                            <option value="Small manufacturing unit setup">
+                            <option value="Service enterprise launch">
+                            <!-- Women -->
+                            <option value="Women entrepreneur venture">
+                            <option value="Self-help group / Self-employment for women">
+                            <option value="Boutique / Handicraft / Home-based enterprise">
+                            <!-- Govt -->
+                            <option value="PM MUDRA Yojana (Shishu/Kishore/Tarun)">
+                            <option value="PMEGP (Prime Minister Employment Gen)">
+                            <option value="Stand-Up India Scheme">
+                            <option value="Kisan Credit Card (KCC) subsidized">
+                        </datalist>
+                    </div>
+                </div>
+
+                <!-- SECTION 5: Assets, Agriculture, Business & Collateral Profile -->
+                <div class="form-section-title">
+                    <i class="fa-solid fa-shapes text-primary"></i> 5. Profile, Assets &amp; Collateral Availability
+                </div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <label class="form-label font-sm fw-semibold">Education Status *</label>
+                        <select name="education_status" id="education_status" class="form-select" required>
+                            <option value="Graduate">Graduate</option>
+                            <option value="Postgraduate">Postgraduate</option>
+                            <option value="Undergraduate">Undergraduate / College</option>
+                            <option value="Doctorate">Doctorate / PhD</option>
+                            <option value="Vocational / Diploma">Vocational / Diploma</option>
+                            <option value="High School">High School (10th/12th)</option>
+                            <option value="Primary / None">Primary / None</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label font-sm fw-semibold">House Ownership *</label>
+                        <select name="house_ownership" id="house_ownership" class="form-select" required>
+                            <option value="Owned">Owned</option>
+                            <option value="Rented">Rented</option>
+                            <option value="Ancestral">Ancestral / Family Owned</option>
+                            <option value="Leased">Leased</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label font-sm fw-semibold">Agricultural Land Ownership *</label>
+                        <select name="land_ownership" id="land_ownership" class="form-select" required>
+                            <option value="No">No</option>
+                            <option value="Yes">Yes</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label font-sm fw-semibold">Agricultural Activity</label>
+                        <select name="agricultural_activity" id="agricultural_activity" class="form-select">
+                            <option value="None">None</option>
+                            <option value="Crop Cultivation">Crop Cultivation</option>
+                            <option value="Dairy Farming">Dairy Farming</option>
+                            <option value="Poultry Farming">Poultry Farming</option>
+                            <option value="Horticulture">Horticulture</option>
+                            <option value="Agro-processing">Agro-processing</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label font-sm fw-semibold">Business Type</label>
+                        <select name="business_type" id="business_type" class="form-select">
+                            <option value="None">None</option>
+                            <option value="Retail Shop">Retail Shop</option>
+                            <option value="Manufacturing">Manufacturing</option>
+                            <option value="Services">Services</option>
+                            <option value="Tech Startup">Tech Startup</option>
+                            <option value="Wholesale / Trading">Wholesale / Trading</option>
+                            <option value="Home-based Enterprise">Home-based Enterprise</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label font-sm fw-semibold">Vehicle Requirement</label>
+                        <select name="vehicle_requirement" id="vehicle_requirement" class="form-select">
+                            <option value="None">None</option>
+                            <option value="Two-Wheeler">Two-Wheeler (Motorcycle/Scooter)</option>
+                            <option value="Four-Wheeler / Car">Four-Wheeler / Car</option>
+                            <option value="Commercial Vehicle">Commercial Vehicle (Truck/Tempo)</option>
+                            <option value="Tractor">Tractor</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label font-sm fw-semibold">Collateral Availability *</label>
+                        <select name="collateral_availability" id="collateral_availability" class="form-select" required>
+                            <option value="None">None (Unsecured)</option>
+                            <option value="Property / Land">Property / Land Title</option>
+                            <option value="Gold / Ornaments">Gold / Ornaments</option>
+                            <option value="Fixed Deposit / Securities">Fixed Deposit / Securities</option>
+                            <option value="Machinery / Stock">Machinery / Hypothecated Stock</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="p-3 rounded bg-light border mb-4 font-xs text-muted">
+                    <i class="fa-solid fa-shield-halved text-primary me-1"></i>
+                    All information submitted is securely processed solely for loan detection modeling and eligibility checks.
+                </div>
+
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="reset" class="btn btn-outline-secondary px-4 rounded-pill">Reset Form</button>
+                    <button type="submit" class="btn btn-primary px-5 py-3 rounded-pill fw-bold shadow">
+                        <i class="fa-solid fa-wand-magic-sparkles me-2"></i> Detect &amp; Recommend Loans
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

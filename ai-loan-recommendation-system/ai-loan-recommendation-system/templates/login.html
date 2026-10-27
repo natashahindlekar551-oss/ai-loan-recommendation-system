@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In - LoanAI Recommendation System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-5">
+            <div class="app-card p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="brand-icon mx-auto mb-3" style="width: 50px; height: 50px; font-size: 1.4rem;">
+                        <i class="fa-solid fa-lock text-primary"></i>
+                    </div>
+                    <h3 class="fw-bold tracking-tight mb-1">Welcome Back</h3>
+                    <p class="text-secondary font-sm">Sign in to your LoanAI account to detect loans &amp; manage submissions</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('login') }}">
+                    <div class="mb-3">
+                        <label class="form-label font-sm fw-semibold">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                            <input type="email" name="email" id="loginEmail" class="form-control" placeholder="name@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label font-sm fw-semibold">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa-solid fa-key"></i></span>
+                            <input type="password" name="password" id="loginPassword" class="form-control" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4 font-sm">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="remember" id="rememberMe">
+                            <label class="form-check-label text-secondary" for="rememberMe">Remember me</label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill fw-semibold shadow-sm mb-3">
+                        Sign In <i class="fa-solid fa-arrow-right-to-bracket ms-1"></i>
+                    </button>
+                </form>
+
+                <!-- One-Click Quick Credentials for Testing -->
+                <div class="mt-4 pt-3 border-top">
+                    <div class="font-xs fw-bold text-uppercase text-muted mb-2 text-center">Quick Demo Credentials (1-Click Fill)</div>
+                    <div class="d-flex flex-column gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary text-start d-flex justify-content-between align-items-center" onclick="fillCreds('ramesh.patel@example.com', 'User@1234')">
+                            <span><i class="fa-solid fa-user me-2 text-primary"></i> Demo Applicant (Ramesh Patel)</span>
+                            <span class="badge bg-light text-dark font-xxs">User</span>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger text-start d-flex justify-content-between align-items-center" onclick="fillCreds('admin@loanai.com', 'Admin@1234')">
+                            <span><i class="fa-solid fa-shield-halved me-2 text-danger"></i> System Administrator (Admin Desk)</span>
+                            <span class="badge bg-danger-subtle text-danger font-xxs">Admin</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4 font-sm text-secondary">
+                    Don't have an account? <a href="{{ url_for('register') }}" class="text-primary fw-semibold text-decoration-none">Register here</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function fillCreds(email, pass) {
+    document.getElementById('loginEmail').value = email;
+    document.getElementById('loginPassword').value = pass;
+}
+</script>
+{% endblock %}

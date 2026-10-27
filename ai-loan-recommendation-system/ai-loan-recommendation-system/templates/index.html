@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+
+{% block title %}LoanAI - AI-Based Loan Detection & Recommendation System{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-gradient text-white py-5 py-lg-6 shadow-sm">
+    <div class="hero-glow"></div>
+    <div class="container-fluid px-lg-5 position-relative">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-white bg-opacity-10 border border-white border-opacity-10 text-white font-xs fw-semibold mb-3">
+                    <span class="badge bg-primary">AI / ML Engine</span> Powered by Random Forest Multi-Category Classifier
+                </div>
+                <h1 class="display-4 fw-extrabold tracking-tight mb-3 lh-sm">
+                    Intelligent Loan Detection &amp; Personalized Recommendations
+                </h1>
+                <p class="lead text-light text-opacity-75 mb-4">
+                    Instantly analyze your personal, financial, asset, and occupational profile across <strong>10 specialized loan categories</strong>. Get precise suitability scores, deep eligibility analysis, and submit your verification documents directly using your <strong>device camera</strong>.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{{ url_for('detect_loan') }}" class="btn btn-primary btn-lg px-4 py-3 rounded-pill shadow d-flex align-items-center gap-2 fw-semibold">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Start AI Loan Detection
+                    </a>
+                    {% if not current_user.is_authenticated %}
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill fw-semibold">
+                        <i class="fa-solid fa-right-to-bracket me-1"></i> Sign In to Account
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill fw-semibold">
+                        <i class="fa-solid fa-chart-line me-1"></i> View My Applications
+                    </a>
+                    {% endif %}
+                </div>
+                
+                <div class="row mt-5 pt-3 border-top border-white border-opacity-10 g-3">
+                    <div class="col-4">
+                        <div class="fs-3 fw-bold text-white">10</div>
+                        <div class="text-light text-opacity-50 font-xs text-uppercase">Loan Categories</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="fs-3 fw-bold text-white">{{ schemes_count }}+</div>
+                        <div class="text-light text-opacity-50 font-xs text-uppercase">Benchmark Schemes</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="fs-3 fw-bold text-success">99.6%</div>
+                        <div class="text-light text-opacity-50 font-xs text-uppercase">Model Accuracy</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-5">
+                <div class="app-card bg-white p-4 shadow-lg text-dark">
+                    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="avatar-sm bg-primary text-white">
+                                <i class="fa-solid fa-brain"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0">AI Loan Detection Simulation</h6>
+                                <small class="text-muted font-xs">Live Multi-Category Matching</small>
+                            </div>
+                        </div>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">Online Engine</span>
+                    </div>
+
+                    <!-- Sample Result Showcase -->
+                    <div class="p-3 rounded bg-light mb-3 border">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold text-dark font-sm"><i class="fa-solid fa-wheat-awn text-success me-1"></i> Agriculture / Farmer Loan</span>
+                            <span class="badge bg-success">96% Match</span>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-success" style="width: 96%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between font-xxs text-muted mt-1">
+                            <span>Suitability: Excellent</span>
+                            <span>KCC Subsidized 4.0% p.a.</span>
+                        </div>
+                    </div>
+
+                    <div class="p-3 rounded bg-light mb-3 border">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold text-dark font-sm"><i class="fa-solid fa-house text-primary me-1"></i> Home Loan</span>
+                            <span class="badge bg-primary">84% Match</span>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-primary" style="width: 84%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between font-xxs text-muted mt-1">
+                            <span>Suitability: High</span>
+                            <span>Benchmark: 8.50% p.a.</span>
+                        </div>
+                    </div>
+
+                    <div class="p-3 rounded bg-light mb-3 border">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold text-dark font-sm"><i class="fa-solid fa-building-flag text-warning me-1"></i> MSME / Startup Loan</span>
+                            <span class="badge bg-warning text-dark">65% Match</span>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-warning" style="width: 65%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between font-xxs text-muted mt-1">
+                            <span>Suitability: Moderate</span>
+                            <span>CGTMSE Collateral Free</span>
+                        </div>
+                    </div>
+
+                    <div class="p-2 text-center rounded bg-primary-subtle text-primary font-xs fw-semibold">
+                        <i class="fa-solid fa-camera me-1"></i> Includes Real-time Camera Document Scanning &amp; Admin Desk
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 10 Loan Categories Showcase -->
+<section class="py-5 bg-white border-bottom">
+    <div class="container-fluid px-lg-5">
+        <div class="text-center max-w-700 mx-auto mb-5">
+            <span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-1 rounded-pill mb-2">Broad Coverage</span>
+            <h2 class="fw-bold text-dark tracking-tight">10 Distinct Loan Categories Detected</h2>
+            <p class="text-secondary font-sm">
+                The AI does not limit you to a single rigid category. It comprehensively scores each category based on your nuanced financial profile and declared needs.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <!-- 1. Home Loan -->
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="category-card h-100">
+                    <div class="category-icon bg-primary-subtle text-primary">
+                        <i class="fa-solid fa-house-chimney"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">1. Home Loan</h5>
+                    <p class="text-secondary font-xs mb-3">
+                        New home purchase, house construction, flat purchase, renovation, and home extension.
+                    </p>
+                    <span class="badge bg-light text-dark border font-xxs">Rates from 8.35% p.a.</span>
+                </div>
+            </div>
+
+            <!-- 2. Education Loan -->
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="category-card h-100">
+                    <div class="category-icon bg-info-subtle text-info">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">2. Education / Student</h5>
+                    <p class="text-secondary font-xs mb-3">
+                        College education, higher studies, professional degrees (MBBS/Engg/MBA), and study abroad.
+                    </p>
+                    <span class="badge bg-light text-dark border font-xxs">Moratorium support</span>
+                </div>
+            </div>
+
+            <!-- 3. Agriculture Loan -->
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="category-card h-100">
+                    <div class="category-icon bg-success-subtle text-success">
+                        <i class="fa-solid fa-seedling"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">3. Agriculture / Farmer</h5>
+                    <p class="text-secondary font-xs mb-3">
+                        Crop cultivation (KCC), tractor &amp; farm machinery, irrigation, dairy, poultry, and seeds.
+                    </p>
+                    <span class="badge bg-light text-dark border font-xxs">Subsidized from 4.0%</span>
+                </div>
+            </div>
+
+            <!-- 4. Personal Loan -->
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="category-card h-100">
+                    <div class="category-icon bg-warning-subtle text-warning">
+                        <i class="fa-solid fa-user-tag"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">4. Personal Loan</h5>
+                    <p class="text-secondary font-xs mb-3">
+                        Medical emergencies, wedding expenses, urgent travel, debt consolidation, and personal needs.
+                    </p>
+                    <span class="badge bg-light text-dark border font-xxs">No collateral needed</span>
+                </div>
+            </div>
+
+            <!-- 5. Business Loan -->
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="category-card h-100">
+                    <div class="category-icon bg-secondary-subtle text-secondary">
+                        <i class="fa-solid fa-briefcase"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">5. Business Loan</h5>
+                    <p class="text-secondary font-xs mb-3">
+                        Starting a business, branch expansion, working capital inventory, and commercial machinery.
+                    </p>
+                    <span class="badge bg-light text-dark border font-xxs">Flexible overdraft</span>
+                </div>
+            </div>
+
+            <!-- 6. Vehicle Loan -->
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="category-card h-100">
+                    <div class="category-icon bg-danger-subtle text-danger">
+                        <i class="fa-solid fa-car"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">6. Vehicle Loan</h5>
+                    <p class="text-secondary font-xs mb-3">
+                        Two-wheelers, private passenger cars, commercial transport vehicles, and agricultural tractors.
+                    </p>
+                    <span class="badge bg-light text-dark border font-xxs">Up to 85% on-road funding</span>
+                </div>
+            </div>
+
+            <!-- 7. Gold Loan -->
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="category-card h-100">
+                    <div class="category-icon bg-warning-subtle text-dark">
+                        <i class="fa-solid fa-coins"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">7. Gold Loan</h5>
+                    <p class="text-secondary font-xs mb-3">
+                        Instant emergency liquidity pledged against physical gold ornaments (18 to 22 karat).
+                    </p>
+                    <span class="badge bg-light text-dark border font-xxs">LTV up to 75%</span>
+                </div>
+            </div>
+
+            <!-- 8. MSME / Startup Loan -->
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="category-card h-100">
+                    <div class="category-icon bg-primary-subtle text-purple">
+                        <i class="fa-solid fa-rocket"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">8. MSME / Startup</h5>
+                    <p class="text-secondary font-xs mb-3">
+                        Tech innovation startups, small manufacturing setups, service enterprises, and greenfield MSMEs.
+                    </p>
+                    <span class="badge bg-light text-dark border font-xxs">CGTMSE Guarantee</span>
+                </div>
+            </div>
+
+            <!-- 9. Women / Special Category Loan -->
+            <div class="col-xl-6 col-lg-6 col-md-6">
+                <div class="category-card h-100">
+                    <div class="category-icon bg-danger-subtle text-danger">
+                        <i class="fa-solid fa-venus"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">9. Women / Special Category Loan</h5>
+                    <p class="text-secondary font-xs mb-3">
+                        Tailored for women entrepreneurs, women self-help groups (SHG), home boutiques, handicrafts, and self-employment with 0.25% - 0.50% interest concession under Stand-Up India and Stree Shakti schemes.
+                    </p>
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle font-xxs">Concessional Rates &amp; Zero Processing Fee</span>
+                </div>
+            </div>
+
+            <!-- 10. Government-Supported Schemes -->
+            <div class="col-xl-6 col-lg-6 col-md-6">
+                <div class="category-card h-100">
+                    <div class="category-icon bg-success-subtle text-success">
+                        <i class="fa-solid fa-landmark"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">10. Government-Supported Loan Schemes</h5>
+                    <p class="text-secondary font-xs mb-3">
+                        Direct public schemes including PM MUDRA Yojana (Shishu, Kishore, Tarun), PMEGP with 15%-35% capital subsidy, Stand-Up India, and Central Sector Interest Subsidy (CSIS) for education.
+                    </p>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle font-xxs">Govt Subsidy &amp; Priority Sector Lending</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works & Camera Document Scanning Highlights -->
+<section class="py-5 bg-light">
+    <div class="container-fluid px-lg-5">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-1 rounded-pill mb-2">End-to-End Workflow</span>
+                <h2 class="fw-bold text-dark tracking-tight mb-4">How LoanAI Works</h2>
+                
+                <div class="d-flex gap-3 mb-4">
+                    <div class="step-number-badge">1</div>
+                    <div>
+                        <h6 class="fw-bold mb-1">Fill 26+ Detailed Financial &amp; Demographic Data Points</h6>
+                        <p class="text-secondary font-sm mb-0">
+                            Enter income, occupation, credit score, current liabilities, property/land ownership, business details, and loan purpose.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3 mb-4">
+                    <div class="step-number-badge">2</div>
+                    <div>
+                        <h6 class="fw-bold mb-1">AI Classification &amp; Multi-Loan Probability Scoring</h6>
+                        <p class="text-secondary font-sm mb-0">
+                            The Scikit-learn Random Forest model computes suitability scores across all 10 categories and ranks your <strong>Top 3 matching loans</strong>.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3 mb-4">
+                    <div class="step-number-badge">3</div>
+                    <div>
+                        <h6 class="fw-bold mb-1">Financial Eligibility &amp; FOIR Debt-to-Income Analysis</h6>
+                        <p class="text-secondary font-sm mb-0">
+                            Evaluates repayment capacity, generates recommended loan amount range, suggested tenure, and transparent natural-language reasoning.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3 mb-4">
+                    <div class="step-number-badge">4</div>
+                    <div>
+                        <h6 class="fw-bold mb-1">Live Camera Scanning &amp; Online Document Verification</h6>
+                        <p class="text-secondary font-sm mb-0">
+                            Use your phone or webcam to scan required documents (Aadhaar, PAN, Land Patta, Income Proof) with instant preview and admin verification.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="p-4 p-lg-5 rounded-4 bg-white border shadow-sm">
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="brand-icon bg-primary text-white">
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0">Integrated Camera Document Scanner</h5>
+                            <small class="text-muted">Instant Document Capture &amp; Online Submission</small>
+                        </div>
+                    </div>
+                    
+                    <ul class="list-unstyled space-y-3 font-sm text-secondary mb-4">
+                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> <strong>Live WebRTC Stream:</strong> Works on desktop webcams, tablets, and smartphone cameras.</li>
+                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> <strong>Flash &amp; Shutter Simulation:</strong> Audible feedback and visual frame alignment guides.</li>
+                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> <strong>Preview &amp; Retake:</strong> Review the captured document in high-res before submission.</li>
+                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> <strong>Dual Mode:</strong> Either snap with camera or drag-and-drop existing PDFs / Images.</li>
+                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> <strong>Real-time Status Tracking:</strong> Track 'Pending Verification', 'Verified', and 'Rejected' statuses.</li>
+                    </ul>
+
+                    <div class="d-grid">
+                        <a href="{{ url_for('detect_loan') }}" class="btn btn-primary py-2 rounded-pill fw-semibold shadow-sm">
+                            Try AI Loan Detector Now <i class="fa-solid fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

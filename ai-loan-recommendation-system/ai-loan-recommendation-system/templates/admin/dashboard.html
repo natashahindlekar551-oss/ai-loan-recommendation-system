@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Overview - LoanAI Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-5 py-4">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-danger-subtle text-danger font-xs fw-bold mb-2">
+                <i class="fa-solid fa-shield-halved"></i> Master Management Portal
+            </div>
+            <h2 class="fw-bold tracking-tight text-dark mb-1">Administrative Dashboard</h2>
+            <p class="text-secondary font-sm mb-0">System performance, application processing pipeline, and document verification center.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('admin_applications') }}" class="btn btn-primary rounded-pill px-4 shadow-sm font-sm fw-semibold">
+                <i class="fa-solid fa-list-check me-1"></i> Review Applications
+            </a>
+            <a href="{{ url_for('admin_schemes') }}" class="btn btn-outline-secondary rounded-pill px-3 font-sm">
+                <i class="fa-solid fa-layer-group me-1"></i> Manage Schemes
+            </a>
+        </div>
+    </div>
+
+    <!-- Metric Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-sm-6">
+            <div class="app-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-secondary font-xs text-uppercase fw-bold">Total Applications</span>
+                    <div class="avatar-sm bg-primary-subtle text-primary"><i class="fa-solid fa-file-invoice"></i></div>
+                </div>
+                <h3 class="fw-bold text-dark mb-1">{{ total_apps }}</h3>
+                <small class="text-muted font-xxs">Across 10 categories</small>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-sm-6">
+            <div class="app-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-secondary font-xs text-uppercase fw-bold">Pending Doc Verification</span>
+                    <div class="avatar-sm bg-warning-subtle text-warning"><i class="fa-solid fa-camera"></i></div>
+                </div>
+                <h3 class="fw-bold text-warning mb-1">{{ pending_docs }}</h3>
+                <small class="text-muted font-xxs">Camera scans &amp; uploads requiring review</small>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-sm-6">
+            <div class="app-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-secondary font-xs text-uppercase fw-bold">Verified Documents</span>
+                    <div class="avatar-sm bg-success-subtle text-success"><i class="fa-solid fa-check-double"></i></div>
+                </div>
+                <h3 class="fw-bold text-success mb-1">{{ verified_docs }}</h3>
+                <small class="text-muted font-xxs">Approved KYC &amp; income proofs</small>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-sm-6">
+            <div class="app-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-secondary font-xs text-uppercase fw-bold">Active Loan Schemes</span>
+                    <div class="avatar-sm bg-info-subtle text-info"><i class="fa-solid fa-building-columns"></i></div>
+                </div>
+                <h3 class="fw-bold text-info mb-1">{{ schemes_count }}</h3>
+                <small class="text-muted font-xxs">Benchmark partner products</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Charts & Verification Desk -->
+    <div class="row g-4 mb-4">
+        <!-- Chart: Category Distribution -->
+        <div class="col-lg-7">
+            <div class="app-card p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0"><i class="fa-solid fa-chart-pie text-primary me-2"></i>Applications Distribution by Category</h5>
+                    <span class="badge bg-light text-dark border font-xs">AI Recommendations</span>
+                </div>
+                <div style="height: 300px;">
+                    <canvas id="categoryDistChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Documents Verification Desk Preview -->
+        <div class="col-lg-5">
+            <div class="app-card p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0"><i class="fa-solid fa-id-card-clip text-warning me-2"></i>Document Verification Desk</h5>
+                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle font-xs">{{ pending_docs }} Pending</span>
+                </div>
+
+                {% if pending_doc_records %}
+                <div class="space-y-2">
+                    {% for pdoc in pending_doc_records %}
+                    <div class="p-3 rounded-3 bg-light border mb-2 d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold text-dark font-sm">{{ pdoc.doc_name }}</div>
+                            <small class="text-secondary font-xxs">
+                                App #APP-{{ pdoc.application_id }} • 
+                                {% if pdoc.is_camera_scan %}<span class="text-primary fw-semibold"><i class="fa-solid fa-camera"></i> Camera Scan</span>{% else %}File Upload{% endif %}
+                            </small>
+                        </div>
+                        <a href="{{ url_for('admin_view_application', app_id=pdoc.application_id) }}#docVerificationSection" class="btn btn-sm btn-outline-primary rounded-pill font-xs">
+                            Inspect &amp; Verify
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="fa-solid fa-circle-check fs-2 text-success mb-2"></i>
+                    <p class="font-sm mb-0">All uploaded documents are verified! No pending backlog.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Applications Table -->
+    <div class="app-card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>Recent Loan Applications</h5>
+            <a href="{{ url_for('admin_applications') }}" class="text-primary font-xs fw-semibold text-decoration-none">View All Applications &rarr;</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-custom align-middle">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Applicant</th>
+                        <th>Occupation</th>
+                        <th>AI Detected Category</th>
+                        <th>Suitability</th>
+                        <th>Eligibility</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in recent_apps %}
+                    <tr>
+                        <td class="fw-bold text-primary font-sm">#APP-{{ app.id }}</td>
+                        <td>
+                            <div class="fw-bold text-dark font-sm">{{ app.full_name }}</div>
+                            <small class="text-muted font-xxs">{{ app.mobile }}</small>
+                        </td>
+                        <td class="font-sm text-secondary">{{ app.occupation }}</td>
+                        <td class="fw-semibold text-dark font-sm">{{ app.top_category }}</td>
+                        <td>
+                            <span class="score-badge-pill {% if app.top_score >= 80 %}score-badge-high{% elif app.top_score >= 50 %}score-badge-med{% else %}score-badge-low{% endif %} font-xs py-1 px-2">
+                                {{ app.top_score }}%
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ app.get_eligibility_details().get('badge_class', 'secondary') }} font-xs">
+                                {{ app.eligibility_status }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-xs">
+                                {{ app.status }}
+                            </span>
+                        </td>
+                        <td class="font-xs text-muted">{{ app.created_at.strftime('%d %b %Y') }}</td>
+                        <td>
+                            <a href="{{ url_for('admin_view_application', app_id=app.id) }}" class="btn btn-sm btn-primary rounded-pill px-3 font-xs">
+                                View Details
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-4">No loan applications recorded yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const catData = {{ cat_counts|tojson }};
+    const ctx = document.getElementById("categoryDistChart");
+    if (ctx) {
+        new Chart(ctx, {
+            type: "doughnut",
+            data: {
+                labels: Object.keys(catData),
+                datasets: [{
+                    data: Object.values(catData),
+                    backgroundColor: [
+                        "#2563eb", "#10b981", "#f59e0b", "#8b5cf6",
+                        "#ec4899", "#06b6d4", "#f97316", "#14b8a6",
+                        "#6366f1", "#64748b"
+                    ],
+                    borderWidth: 2,
+                    borderColor: "#ffffff"
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: "right" }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

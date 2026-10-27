@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Loan Applications - Admin Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-5 py-4">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold tracking-tight text-dark mb-1">Loan Applications Management</h2>
+            <p class="text-secondary font-sm mb-0">Browse, filter, and inspect applicant profiles and AI evaluation scores.</p>
+        </div>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary rounded-pill px-3 font-sm">
+            <i class="fa-solid fa-arrow-left me-1"></i> Back to Admin Dashboard
+        </a>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="app-card p-3 mb-4">
+        <form method="GET" action="{{ url_for('admin_applications') }}" class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <select name="category" class="form-select font-sm">
+                    <option value="">-- All Loan Categories --</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}" {% if current_category == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select font-sm">
+                    <option value="">-- All Application Statuses --</option>
+                    <option value="Submitted" {% if current_status == 'Submitted' %}selected{% endif %}>Submitted</option>
+                    <option value="Under Review" {% if current_status == 'Under Review' %}selected{% endif %}>Under Review</option>
+                    <option value="Verified" {% if current_status == 'Verified' %}selected{% endif %}>Verified</option>
+                    <option value="Approved" {% if current_status == 'Approved' %}selected{% endif %}>Approved</option>
+                    <option value="Rejected" {% if current_status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary rounded-pill w-100 font-sm">
+                    <i class="fa-solid fa-filter me-1"></i> Apply Filter
+                </button>
+            </div>
+            <div class="col-md-2">
+                <a href="{{ url_for('admin_applications') }}" class="btn btn-outline-secondary rounded-pill w-100 font-sm">
+                    Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Applications Table -->
+    <div class="app-card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">Applications List ({{ applications|length }} Found)</h5>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-custom align-middle">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Applicant</th>
+                        <th>Location</th>
+                        <th>Occupation</th>
+                        <th>Income / Month</th>
+                        <th>Category Match</th>
+                        <th>Credit Score</th>
+                        <th>Eligibility</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in applications %}
+                    <tr>
+                        <td class="fw-bold text-primary font-sm">#APP-{{ app.id }}</td>
+                        <td>
+                            <div class="fw-bold text-dark font-sm">{{ app.full_name }}</div>
+                            <small class="text-muted font-xxs">{{ app.mobile }}</small>
+                        </td>
+                        <td class="font-xs text-secondary">{{ app.district }}, {{ app.state }}</td>
+                        <td class="font-sm">{{ app.occupation }}</td>
+                        <td class="font-sm fw-semibold">₹{{ "{:,}".format(app.monthly_income|int) }}</td>
+                        <td>
+                            <div class="fw-bold text-dark font-sm">{{ app.top_category }}</div>
+                            <span class="badge bg-success-subtle text-success font-xxs">{{ app.top_score }}% Match</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border font-xs">{{ app.credit_score }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ app.get_eligibility_details().get('badge_class', 'secondary') }} font-xs">
+                                {{ app.eligibility_status }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-xs">
+                                {{ app.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('admin_view_application', app_id=app.id) }}" class="btn btn-sm btn-primary rounded-pill px-3 font-xs">
+                                Inspect
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="10" class="text-center text-muted py-5">
+                            <i class="fa-solid fa-magnifying-glass fs-3 mb-2 d-block"></i>
+                            No applications matching filter criteria.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
